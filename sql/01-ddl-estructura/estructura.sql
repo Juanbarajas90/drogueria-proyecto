@@ -1,8 +1,18 @@
 CREATE DATABASE IF NOT EXISTS drogueria_db;
 USE drogueria_db;
 
--- 1. Tabla de Proveedores
--- Se crea primero porque los productos dependen de ellos.
+-- ============================================================================
+-- PARTE 1: ESTRUCTURA DDL (Con Constraints de la Semana 07)
+-- ============================================================================
+
+-- 1. Tabla de Categorías (Nueva - Agrupa los productos)
+CREATE TABLE categorias_medicamentos (
+    categoria_id INT AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    CONSTRAINT pk_categorias PRIMARY KEY (categoria_id)
+) ENGINE=InnoDB;
+
+-- 2. Tabla de Proveedores
 CREATE TABLE proveedores (
     proveedor_id INT AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
@@ -13,22 +23,26 @@ CREATE TABLE proveedores (
     CONSTRAINT pk_proveedores PRIMARY KEY (proveedor_id)
 ) ENGINE=InnoDB;
 
--- 2. Tabla de Productos
--- Incluye restricciones de integridad y tipos de datos precisos.
+-- 3. Tabla de Productos (Modificada con constraints requeridos)
 CREATE TABLE productos (
     producto_id INT AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    precio_venta DECIMAL(12, 2) NOT NULL CHECK (precio_venta > 0),
-    stock_minimo INT DEFAULT 5,
+    codigo_barras VARCHAR(50) UNIQUE NOT NULL, -- CONSTRAINT UNIQUE
+    precio_venta DECIMAL(12, 2) NOT NULL CHECK (precio_venta > 0), -- CONSTRAINT CHECK
+    stock_minimo INT DEFAULT 5, -- CONSTRAINT DEFAULT
+    estado_activo BOOLEAN DEFAULT TRUE, -- CONSTRAINT DEFAULT
+    registro_invima VARCHAR(50), -- COLUMNA OPCIONAL (Permite NULL)
     proveedor_id INT,
+    categoria_id INT NOT NULL, -- Nueva relación obligatoria
     CONSTRAINT pk_productos PRIMARY KEY (producto_id),
     CONSTRAINT fk_producto_proveedor FOREIGN KEY (proveedor_id) 
-        REFERENCES proveedores(proveedor_id) ON DELETE SET NULL
+        REFERENCES proveedores(proveedor_id) ON DELETE SET NULL,
+    CONSTRAINT fk_producto_categoria FOREIGN KEY (categoria_id) 
+        REFERENCES categorias_medicamentos(categoria_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
--- 3. Tabla de Inventario (Movimientos)
--- Para trackear entradas y salidas de stock de forma auditable.
+-- 4. Tabla de Inventario (Movimientos)
 CREATE TABLE inventario (
     inventario_id INT AUTO_INCREMENT,
     producto_id INT NOT NULL,
@@ -41,7 +55,7 @@ CREATE TABLE inventario (
         REFERENCES productos(producto_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 4. Tabla de Ventas (Cabecera)
+-- 5. Tabla de Ventas (Cabecera)
 CREATE TABLE ventas (
     venta_id INT AUTO_INCREMENT,
     fecha_venta DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -50,8 +64,7 @@ CREATE TABLE ventas (
     CONSTRAINT pk_ventas PRIMARY KEY (venta_id)
 ) ENGINE=InnoDB;
 
--- 5. Tabla Detalle de Ventas (Intermedia)
--- Crucial para saber qué productos se vendieron en cada factura.
+-- 6. Tabla Detalle de Ventas (Intermedia)
 CREATE TABLE detalle_ventas (
     detalle_id INT AUTO_INCREMENT,
     venta_id INT NOT NULL,
