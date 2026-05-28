@@ -1,4 +1,10 @@
--- 1. Inserción de Categorías (7 registros)
+USE drogueria_db;
+
+-- ============================================================================
+-- PARTE 2: POBLADO DE LA BASE DE DATOS (DML)
+-- ============================================================================
+
+-- 1. Inserción de Categorías Originales (IDs 1 al 7)
 INSERT INTO categorias_medicamentos (nombre) VALUES
 ('Analgésicos y Antiinflamatorios'), -- 1
 ('Antibióticos y Antimicrobianos'),  -- 2
@@ -8,7 +14,18 @@ INSERT INTO categorias_medicamentos (nombre) VALUES
 ('Respiratorios y Antialérgicos'),   -- 6
 ('Otros / Misceláneos');             -- 7
 
--- 2. Inserción de Proveedores (40 registros intactos)
+-- 1.1 Inserción de Categorías Raíz (Nuevas - IDs 8, 9 y 10)
+INSERT INTO categorias_medicamentos (nombre, parent_id) VALUES 
+('Medicamentos RX (Fórmula Médica)', NULL),
+('Medicamentos OTC (Venta Libre)', NULL),
+('Bienestar y Nutrición', NULL);
+
+-- 1.2 Actualización de jerarquía (Unimos los hijos con sus padres)
+UPDATE categorias_medicamentos SET parent_id = 9 WHERE categoria_id IN (1, 5, 6, 7);
+UPDATE categorias_medicamentos SET parent_id = 8 WHERE categoria_id IN (2, 4);
+UPDATE categorias_medicamentos SET parent_id = 10 WHERE categoria_id = 3;
+
+-- 2. Inserción de Proveedores (40 registros)
 INSERT INTO proveedores (nombre, nit, telefono, direccion, email) VALUES
 ('Tecnoquímicas S.A.', '800123456-1', '3101234567', 'Calle 10 # 20-30, Cali', 'contacto@tecnoquimicas.com'),
 ('Genfar', '900234567-2', '3202345678', 'Carrera 15 # 40-50, Bogotá', 'ventas@genfar.com'),
@@ -51,8 +68,7 @@ INSERT INTO proveedores (nombre, nit, telefono, direccion, email) VALUES
 ('Asofarma', '901444999-9', '3169991122', 'Carrera 15 # 104-76, Bogotá', 'info@asofarma.com.co'),
 ('Laboratorios Chalver', '800555000-0', '3170002233', 'Avenida 68 # 39-61, Bogotá', 'ventas@chalver.com.co');
 
--- 3. Inserción de Productos (45 registros adaptados)
--- Se incluyen valores NULL en registro_invima para probar el ejercicio.
+-- 3. Inserción de Productos (45 registros)
 INSERT INTO productos (nombre, descripcion, codigo_barras, precio_venta, stock_minimo, estado_activo, registro_invima, proveedor_id, categoria_id) VALUES
 ('Acetaminofén 500mg', 'Caja x 100 tabletas, analgésico.', '770001', 15000.00, 20, TRUE, 'INV-1001', 2, 1),
 ('Ibuprofeno 400mg', 'Caja x 50 grageas, antiinflamatorio.', '770002', 12500.00, 15, TRUE, 'INV-1002', 2, 1),
@@ -66,7 +82,7 @@ INSERT INTO productos (nombre, descripcion, codigo_barras, precio_venta, stock_m
 ('Salbutamol Inhalador', 'Inhalador 100mcg/dosis, broncodilatador.', '770010', 35000.00, 5, TRUE, 'INV-1010', 6, 6),
 ('Metformina 850mg', 'Caja x 30 tabletas, control de glucosa.', '770011', 16500.00, 10, TRUE, 'INV-1011', 7, 7),
 ('Atorvastatina 20mg', 'Caja x 30 tabletas, reductor colesterol.', '770012', 28000.00, 10, TRUE, 'INV-1012', 5, 4),
-('Azitromicina 500mg', 'Caja x 3 tabletas, antibiótico macrólido.', '770013', 15500.00, 5, FALSE, NULL, 1, 2), -- NULL 1
+('Azitromicina 500mg', 'Caja x 3 tabletas, antibiótico macrólido.', '770013', 15500.00, 5, FALSE, NULL, 1, 2), 
 ('Naproxeno 250mg', 'Caja x 20 cápsulas, dolor e inflamación.', '770014', 11000.00, 10, TRUE, 'INV-1014', 10, 1),
 ('Complejo B', 'Frasco x 50 grageas, suplemento.', '770015', 21000.00, 10, TRUE, 'INV-1015', 4, 3),
 ('Alka-Seltzer', 'Caja x 12 sobres efervescentes, antiácido.', '770016', 13000.00, 20, TRUE, 'INV-1016', 3, 5),
@@ -96,59 +112,37 @@ INSERT INTO productos (nombre, descripcion, codigo_barras, precio_venta, stock_m
 ('Ranitidina 150mg', 'Caja x 20 tabletas, antiácido.', '770040', 9000.00, 10, TRUE, 'INV-1040', 6, 5),
 ('Buscapina Compositum', 'Caja x 20 grageas, antiespasmódico.', '770041', 23000.00, 15, TRUE, 'INV-1041', 15, 5),
 ('Ginkgo Biloba 80mg', 'Caja x 30 cápsulas, oxigenador.', '770042', 35000.00, 5, TRUE, 'INV-1042', 18, 7),
-('Colágeno Hidrolizado', 'Tarro 300g, suplemento articular.', '770043', 65000.00, 5, TRUE, NULL, 19, 3), -- NULL 2
-('Ensure Vainilla', 'Tarro 400g, suplemento nutricional.', '770044', 55000.00, 10, TRUE, NULL, 11, 3), -- NULL 3
+('Colágeno Hidrolizado', 'Tarro 300g, suplemento articular.', '770043', 65000.00, 5, TRUE, NULL, 19, 3), 
+('Ensure Vainilla', 'Tarro 400g, suplemento nutricional.', '770044', 55000.00, 10, TRUE, NULL, 11, 3), 
 ('Pedialyte Zinc', 'Frasco 500ml, suero oral.', '770045', 12500.00, 20, TRUE, 'INV-1045', 11, 3);
 
--- 4. Inventario (45 Registros de Movimientos intactos)
+-- 4. Inventario (45 Registros)
 INSERT INTO inventario (producto_id, cantidad, tipo_movimiento, observaciones) VALUES
-(1, 500, 'entrada', 'Lote de apertura Tecnoquimicas'),
-(2, 400, 'entrada', 'Lote de apertura Genfar'),
-(3, 200, 'entrada', 'Compra mensual antibióticos'),
-(4, 300, 'entrada', 'Stock de temporada alergias'),
-(5, 150, 'entrada', 'Reabastecimiento omeprazol'),
-(6, 200, 'entrada', 'Pedido mensual hipertensión'),
-(7, 600, 'entrada', 'Compra masiva Bayer'),
-(8, 250, 'entrada', 'Promoción vit C'),
-(9, 300, 'entrada', 'Stock analgesicos'),
-(10, 50, 'entrada', 'Inhaladores lote 1'),
-(1, 10, 'salida', 'Venta mostrador turno 1'),
-(2, 5, 'salida', 'Venta mostrador turno 1'),
-(3, 2, 'salida', 'Venta con fórmula médica'),
-(15, 100, 'entrada', 'Suplementos vitamínicos ingreso'),
-(16, 200, 'entrada', 'Compra Alka-Seltzer Bayer'),
-(20, 50, 'entrada', 'Ivermectina lote 2024'),
-(25, 100, 'entrada', 'Amlodipino pedido Pfizer'),
-(30, 40, 'entrada', 'Pregabalina ingreso especial'),
-(44, 80, 'entrada', 'Ensure pedido Abbott'),
-(45, 150, 'entrada', 'Suero oral temporada calor'),
-(1, 2, 'ajuste', 'Merma por caja rota'),
-(44, 1, 'ajuste', 'Ajuste inventario fecha vencida'),
-(5, 20, 'salida', 'Venta corporativa empresa A'),
-(7, 50, 'salida', 'Venta institucional clínica B'),
-(8, 15, 'salida', 'Venta mostrador turno 2'),
-(22, 100, 'entrada', 'Levotiroxina reabastecimiento'),
-(23, 150, 'entrada', 'Enalapril lote nuevo'),
-(28, 60, 'entrada', 'Ciprofloxacino ingreso urgencia'),
-(32, 30, 'entrada', 'Sildenafil stock'),
-(41, 100, 'entrada', 'Buscapina ingreso Boehringer'),
-(10, 2, 'salida', 'Venta mostrador'),
-(15, 5, 'salida', 'Venta mostrador'),
-(32, 1, 'salida', 'Venta mostrador discreta'),
-(41, 3, 'salida', 'Venta mostrador'),
-(45, 10, 'salida', 'Venta a cliente recurrente'),
-(12, 100, 'entrada', 'Atorvastatina compra'),
-(17, 80, 'entrada', 'Crema hidrocortisona ingreso'),
-(37, 50, 'entrada', 'Esomeprazol ingreso'),
-(38, 30, 'entrada', 'Alprazolam pedido controlado'),
-(12, 4, 'salida', 'Venta fórmula EPS'),
-(17, 1, 'salida', 'Venta mostrador'),
-(37, 2, 'salida', 'Venta mostrador'),
-(2, 1, 'ajuste', 'Pérdida desconocida'),
-(3, 1, 'ajuste', 'Cápsula rota en mostrador'),
+(1, 500, 'entrada', 'Lote de apertura Tecnoquimicas'),(2, 400, 'entrada', 'Lote de apertura Genfar'),
+(3, 200, 'entrada', 'Compra mensual antibióticos'),(4, 300, 'entrada', 'Stock de temporada alergias'),
+(5, 150, 'entrada', 'Reabastecimiento omeprazol'),(6, 200, 'entrada', 'Pedido mensual hipertensión'),
+(7, 600, 'entrada', 'Compra masiva Bayer'),(8, 250, 'entrada', 'Promoción vit C'),
+(9, 300, 'entrada', 'Stock analgesicos'),(10, 50, 'entrada', 'Inhaladores lote 1'),
+(1, 10, 'salida', 'Venta mostrador turno 1'),(2, 5, 'salida', 'Venta mostrador turno 1'),
+(3, 2, 'salida', 'Venta con fórmula médica'),(15, 100, 'entrada', 'Suplementos vitamínicos ingreso'),
+(16, 200, 'entrada', 'Compra Alka-Seltzer Bayer'),(20, 50, 'entrada', 'Ivermectina lote 2024'),
+(25, 100, 'entrada', 'Amlodipino pedido Pfizer'),(30, 40, 'entrada', 'Pregabalina ingreso especial'),
+(44, 80, 'entrada', 'Ensure pedido Abbott'),(45, 150, 'entrada', 'Suero oral temporada calor'),
+(1, 2, 'ajuste', 'Merma por caja rota'),(44, 1, 'ajuste', 'Ajuste inventario fecha vencida'),
+(5, 20, 'salida', 'Venta corporativa empresa A'),(7, 50, 'salida', 'Venta institucional clínica B'),
+(8, 15, 'salida', 'Venta mostrador turno 2'),(22, 100, 'entrada', 'Levotiroxina reabastecimiento'),
+(23, 150, 'entrada', 'Enalapril lote nuevo'),(28, 60, 'entrada', 'Ciprofloxacino ingreso urgencia'),
+(32, 30, 'entrada', 'Sildenafil stock'),(41, 100, 'entrada', 'Buscapina ingreso Boehringer'),
+(10, 2, 'salida', 'Venta mostrador'),(15, 5, 'salida', 'Venta mostrador'),
+(32, 1, 'salida', 'Venta mostrador discreta'),(41, 3, 'salida', 'Venta mostrador'),
+(45, 10, 'salida', 'Venta a cliente recurrente'),(12, 100, 'entrada', 'Atorvastatina compra'),
+(17, 80, 'entrada', 'Crema hidrocortisona ingreso'),(37, 50, 'entrada', 'Esomeprazol ingreso'),
+(38, 30, 'entrada', 'Alprazolam pedido controlado'),(12, 4, 'salida', 'Venta fórmula EPS'),
+(17, 1, 'salida', 'Venta mostrador'),(37, 2, 'salida', 'Venta mostrador'),
+(2, 1, 'ajuste', 'Pérdida desconocida'),(3, 1, 'ajuste', 'Cápsula rota en mostrador'),
 (11, 100, 'entrada', 'Metformina reabastecimiento general');
 
--- 5. Ventas (40 Registros intactos)
+-- 5. Ventas (40 Registros)
 INSERT INTO ventas (venta_id, total_venta, metodo_pago) VALUES
 (1, 27500.00, 'efectivo'), (2, 44000.00, 'tarjeta'), (3, 30000.00, 'transferencia'),
 (4, 42000.00, 'efectivo'), (5, 34000.00, 'tarjeta'), (6, 15000.00, 'efectivo'),
@@ -165,7 +159,7 @@ INSERT INTO ventas (venta_id, total_venta, metodo_pago) VALUES
 (37, 10500.00, 'tarjeta'), (38, 14500.00, 'efectivo'), (39, 22500.00, 'transferencia'),
 (40, 9500.00, 'efectivo');
 
--- 6. Detalle de Ventas (50 Registros intactos)
+-- 6. Detalle de Ventas (50 Registros)
 INSERT INTO detalle_ventas (venta_id, producto_id, cantidad, precio_unitario) VALUES
 (1, 1, 1, 15000.00), (1, 2, 1, 12500.00), (2, 3, 2, 22000.00), (3, 7, 1, 30000.00), 
 (4, 8, 3, 14000.00), (5, 6, 1, 25000.00), (5, 9, 1, 9000.00), (6, 1, 1, 15000.00), 

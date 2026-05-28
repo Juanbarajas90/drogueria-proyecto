@@ -2,14 +2,17 @@ CREATE DATABASE IF NOT EXISTS drogueria_db;
 USE drogueria_db;
 
 -- ============================================================================
--- PARTE 1: ESTRUCTURA DDL (Con Constraints de la Semana 07)
+-- PARTE 1: ESTRUCTURA DDL (Actualizada para soportar jerarquías)
 -- ============================================================================
 
--- 1. Tabla de Categorías (Nueva - Agrupa los productos)
+-- 1. Tabla de Categorías (Modificada con parent_id para Semana 10)
 CREATE TABLE categorias_medicamentos (
     categoria_id INT AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL UNIQUE,
-    CONSTRAINT pk_categorias PRIMARY KEY (categoria_id)
+    parent_id INT DEFAULT NULL, -- Columna auto-referencial (Jerarquía)
+    CONSTRAINT pk_categorias PRIMARY KEY (categoria_id),
+    CONSTRAINT fk_categoria_parent FOREIGN KEY (parent_id) 
+        REFERENCES categorias_medicamentos(categoria_id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
 -- 2. Tabla de Proveedores
@@ -23,18 +26,18 @@ CREATE TABLE proveedores (
     CONSTRAINT pk_proveedores PRIMARY KEY (proveedor_id)
 ) ENGINE=InnoDB;
 
--- 3. Tabla de Productos (Modificada con constraints requeridos)
+-- 3. Tabla de Productos
 CREATE TABLE productos (
     producto_id INT AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    codigo_barras VARCHAR(50) UNIQUE NOT NULL, -- CONSTRAINT UNIQUE
-    precio_venta DECIMAL(12, 2) NOT NULL CHECK (precio_venta > 0), -- CONSTRAINT CHECK
-    stock_minimo INT DEFAULT 5, -- CONSTRAINT DEFAULT
-    estado_activo BOOLEAN DEFAULT TRUE, -- CONSTRAINT DEFAULT
-    registro_invima VARCHAR(50), -- COLUMNA OPCIONAL (Permite NULL)
+    codigo_barras VARCHAR(50) UNIQUE NOT NULL, 
+    precio_venta DECIMAL(12, 2) NOT NULL CHECK (precio_venta > 0), 
+    stock_minimo INT DEFAULT 5, 
+    estado_activo BOOLEAN DEFAULT TRUE, 
+    registro_invima VARCHAR(50), 
     proveedor_id INT,
-    categoria_id INT NOT NULL, -- Nueva relación obligatoria
+    categoria_id INT NOT NULL, 
     CONSTRAINT pk_productos PRIMARY KEY (producto_id),
     CONSTRAINT fk_producto_proveedor FOREIGN KEY (proveedor_id) 
         REFERENCES proveedores(proveedor_id) ON DELETE SET NULL,
