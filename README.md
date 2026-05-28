@@ -6,9 +6,9 @@ En este repositorio comparto la estructura y lógica de una base de datos relaci
 
 Para llevar un orden lógico, dividí el proyecto en estos archivos:
 
-*   `/sql/ddl_structure.sql`: Aquí está la creación de las tablas, los tipos de datos exactos y todas las reglas de restricción (`UNIQUE`, `CHECK`, Llaves Foráneas).
-*   `/sql/dml_seed.sql`: Mi script con más de 40 registros de prueba por cada tabla. Lo hice así para tener un volumen de datos real con el cual probar consultas pesadas y reportes.
-*   `/docs/diagrama_er.png`: El mapa visual que muestra cómo se conecta todo.
+*   `/sql/01-estructura.bd/estructura.sql`: Aquí está la creación de las tablas, los tipos de datos exactos y todas las reglas de restricción (`UNIQUE`, `CHECK`, Llaves Foráneas).
+*   `/sql/02-registros.bd/contenido.sql`: Mi script con más de 40 registros de prueba por cada tabla. Lo hice así para tener un volumen de datos real con el cual probar consultas pesadas y reportes.
+*   `/sql/03-semanas-entrega/0x-semana`: Directoria que guarda cada semana, con lo que debemos a entregar, con base al repositorio `SQL` del profesor.
 
 ## ¿Cómo pensé las tablas?
 
